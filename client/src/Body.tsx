@@ -1,4 +1,4 @@
-import React,  {useState} from 'react';
+import React,  {useState,useEffect} from 'react';
 import { IState } from './App';
 import './index.css';
 import nft2 from './assets/nft2.jpeg';
@@ -10,9 +10,28 @@ const Body: React.FC<{state: IState|null}> = (props) =>{
     const [mintLoad, setMintLoad] = useState<boolean>(true);
     const [burnLoad, setBurnLoad] = useState<boolean>(true);
     const [showBurn, setShowBurn] = useState<boolean>(false);
-
+    const [mintedAmount, setMintedAmount] = useState(0);
 
     const contract = props.state!.contract;
+    useEffect(() => {
+        try {
+          const fetchBalance = async() => {
+            // event.preventDefault();
+            const fetchAmount = Number(await contract?.currentPrice());
+            console.log(fetchAmount);
+            setMintedAmount(Number(fetchAmount) / 10 ** 18);
+            console.log(
+              "Amount that is fetched : ",
+              Number(fetchAmount) / 10 ** 18
+            );
+          };
+          fetchBalance();
+        } catch (error) {
+          console.log(error);
+        }
+      },[contract]);
+
+    
 
     const mintNFT= async() =>{
         setMintLoad(false);
@@ -56,7 +75,7 @@ return(
     <center>
     <div className='container-body'>
        <img src={nft2} alt ='NFT'/>
-        <button onClick={mintNFT}> {mintLoad ? "Mint" : "Minting.."}</button>
+        <button onClick={mintNFT}> {mintLoad ? "Mint" :  `Mint@ ${mintedAmount}`}</button>
         {showBurn && (
         <button onClick={burnNFT}>{burnLoad ? "Burn" : "Burning.."}</button>
       )}
