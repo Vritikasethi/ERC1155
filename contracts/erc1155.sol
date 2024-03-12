@@ -20,16 +20,25 @@ contract MyToken is ERC1155, Ownable, ERC1155Burnable, ERC1155Supply {
 
     function deductAmount(uint256 _id) private {
         uint256 amount = totalSupply(_id);
+        if(amount==0){
+            currentPrice = 1000000000000000;
+            return;
+        }
         currentPrice = (1000000000000000 * amount * amount)/16000;
     }
 
-    function mint(address account, uint256 id, uint256 amount)
+    function mint()
         public
         payable
     {
-        require(totalSupply(id) + amount <= maxSupply, "MyToken: Max supply exceed");
-        _mint(account, id, amount, "");
-        deductAmount(id);
+    //     const amt = await contract?.currentPrice();
+    //  console.log(Number(amt));
+        require(msg.value==currentPrice, "not equal");
+        require(totalSupply(0) <= maxSupply, "MyToken: Max supply exceed");
+       
+        
+        _mint(msg.sender, 0, 1, "");
+        deductAmount(0);
     }
 
     function burnToken(uint256 id, uint256 balance) public {
